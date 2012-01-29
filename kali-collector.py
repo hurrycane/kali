@@ -1,53 +1,28 @@
 import zmq
 import re
+import time
 import threading
+
+from msgpack import unpackb
 
 context = zmq.Context()
 socket = context.socket(zmq.REP)
 
-socket.bind("ipc:///tmp/metrics.pipe")
+socket.bind("tcp://*:56468")
 
-metrics = {}
-S_LEN = 5
+#q = Queue.Queue()
 
-# metric format is <bucket> : <int/float value> | <type>
-# <type> can be:
-# counter: c
-# timer: ms
-# sampled: @<float> were <float> means sampling radio
-def storeMetric(message):
-  global messages
-  message = re.split('(\w+)\:([-+]?\d*\.\d+|\d+)\|(.+)',message)
+def main():
 
-  # after split exactly S_LEN pieces need to be present
-  if len(message) == S_LEN:
-    bucket = message[1]
-    value = message[2]
-    category = message[3]
-
-    if bucket in metrics:
-
-      if category == "c":
-        metrics[bucket] += value
-      elif category == "ms" or category[0] == '@':
-        metrics[bucket].append(value)
-
-    else:
-
-      if category == "c":
-        metrics[bucket] = 0
-        metrics[bucket] += value
-      else:
-        metrics[bucket] = []
-        metrics[bucket].append(value)
-
-def server_thread():
-  idx = 0
   while True:
     message = socket.recv()
-    storeMetric(message)
-    idx += 1
+    try:
+      metrics = unpackb(message)
+      print len(metrics.keys())
+    except:
+      metrics = {}
 
-    socket.send("RESP")
+    socket.send("OK")
 
-server_thread()
+if __name__ == "__main__":
+  main()

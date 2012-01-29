@@ -7,4 +7,8 @@ Kali-agent and collector are based on zeromq.
 
 Pre-alpha release.
 
+* Arhichitecture
+
+Both REST 
+
 [Bogdan Gaza][hurrycane]
