@@ -29,24 +29,21 @@ def storeMetric(message):
     value = message[2]
     category = message[3]
 
-    lock.acquire()
-    if bucket in metrics:
+    # TODO Refactor verification to be included in regex
+    if category != "c" and category != "ms":
+      return
 
-      if category == "c":
-        metrics[bucket] += value
-      elif category == "ms" or category[0] == '@':
-        metrics[bucket].append(value)
+    bucket = bucket + ":" + category
 
-    else:
+    try:
+      lock.acquire()
 
-      if category == "c":
-        metrics[bucket] = 0
-        metrics[bucket] += value
-      else:
+      if bucket not in metrics:
         metrics[bucket] = []
-        metrics[bucket].append(value)
-
-    lock.release()
+      
+      metrics[bucket].append({ 'v' : float(value), 't': time.time() })
+    finally:
+      lock.release()
 
 def server_thread():
   global metrics
@@ -68,21 +65,25 @@ def send_to_collector():
     # pack metrics
     # this area needs locking because we're clearing
     # the metrics dictionary.
-    print len(metrics.keys())
     lock.acquire()
-    print len(metrics.keys())
-    m = packb(metrics)
-    metrics.clear()
+    if len(metrics.keys()) != 0:
+      print "Metrics found"
+      m = packb(metrics)
+      metrics.clear()
+    else:
+      print "No metrics"
+      m = None
     lock.release()
-    print len(metrics.keys())
 
-    # send them to collector
-    collector = context.socket(zmq.REQ)
-    collector.connect("tcp://localhost:56468")
+    if m != None:
+      print "Sending metrics"
+      # send them to collector
+      collector = context.socket(zmq.REQ)
+      collector.connect("tcp://localhost:56468")
 
-    collector.send(m)
+      collector.send(m)
 
-    collector.close()
+      collector.close()
 
 def main():
   threads = []

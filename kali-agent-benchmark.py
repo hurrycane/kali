@@ -12,7 +12,7 @@ def run():
   socket = context.socket(zmq.REQ)
   socket.connect("ipc:///tmp/metrics.pipe")
 
-  N = 100000
+  N = 1
   
   loop_start = time.time()
 

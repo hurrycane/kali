@@ -5,10 +5,13 @@ The agent runs on every node of your infrastructure while the collector is used 
 
 Kali-agent and collector are based on zeromq.
 
-Pre-alpha release.
-
 * Arhichitecture
 
-Both REST 
+Each node has a publishing agent. You send metrics to the publishing agent via ZeroMQ IPC socks.
+The agents handles pushing the metrics to a general collectors.
+
+The Collector computes percentile information and normalization and then stores the metrics in a MongoDb instance.
+
+Pre-alpha release
 
 [Bogdan Gaza][hurrycane]
