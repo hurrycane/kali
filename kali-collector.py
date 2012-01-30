@@ -42,7 +42,8 @@ def storage_thread():
 
     # insert item into DB
     for metric in metrics.keys():
-      process_metric(metric,metrics[metric])
+      # funny
+      metrics_processing.process_metric(metric,metrics[metric])
     
     print "Thread"
     q.task_done()
