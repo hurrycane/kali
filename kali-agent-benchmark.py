@@ -12,15 +12,15 @@ def run():
   socket = context.socket(zmq.REQ)
   socket.connect("ipc:///tmp/metrics.pipe")
 
-  N = 1
+  N = 30
   
   loop_start = time.time()
 
-  for x in range(N):
+  bucket = ""
+  for i in range(4):
+    bucket += random.choice(string.letters)
 
-    bucket = ""
-    for i in range(4):
-      bucket += random.choice(string.letters)
+  for x in range(N):
 
     message = bucket + ":" + str(random.random()*1000) + "|ms"
 
@@ -35,9 +35,8 @@ def run():
 
 
 threads = []
-#for i in range(1):
-#  t = threading.Thread(target=run)
-#  t.start()
+for i in range(10):
+  t = threading.Thread(target=run)
+  t.start()
 
-#[t.join() for t in threads]
-run()
+[t.join() for t in threads]

@@ -59,7 +59,6 @@ def publish_stats(collection,name,stats,metric_type,afinity = None):
 
     collection.insert(metric)
 
-
 def distribute_stats(stats,timestamp,metrics):
   for k in metrics:
     stats[k].append({ 'v' : metrics[k], 't' : timestamp })
@@ -116,6 +115,8 @@ def compute_percentile_tbs(name,bucket):
   # metrics for 10s
   publish_metric(name,bucket,lambda x: min_metric["t"],"10s")
 
+def compute_percentile_ns():
+  pass
 
 def process_metric(bucket_name,bucket):
   # insert metrics in the raw collection

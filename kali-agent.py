@@ -18,6 +18,7 @@ S_LEN = 5
 # <type> can be:
 # counter: c
 # timer: ms
+# geographical coordinates: g
 # sampled: @<float> were <float> means sampling radio
 def storeMetric(message):
   global messages
@@ -30,7 +31,8 @@ def storeMetric(message):
     category = message[3]
 
     # TODO Refactor verification to be included in regex
-    if category != "c" and category != "ms":
+    categories = [ "c", "ms", "g" ]
+    if category not in categories:
       return
 
     bucket = bucket + ":" + category
@@ -45,6 +47,7 @@ def storeMetric(message):
     finally:
       lock.release()
 
+# basic server thread for reading and storing metrics from clients
 def server_thread():
   global metrics
 
@@ -54,6 +57,7 @@ def server_thread():
     storeMetric(message)
     socket.send("RESP")
 
+# collector thread that sends data to the collector once every 10s
 def send_to_collector():
   global metrics
 
@@ -85,6 +89,7 @@ def send_to_collector():
 
       collector.close()
 
+# entry point
 def main():
   threads = []
   t = threading.Thread(target=server_thread)
