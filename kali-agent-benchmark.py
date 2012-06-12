@@ -10,9 +10,9 @@ socket = context.socket(zmq.REQ)
 
 def run():
   socket = context.socket(zmq.REQ)
-  socket.connect("ipc:///tmp/metrics.pipe")
+  socket.connect("ipc:///tmp/local.pipe")
 
-  N = 30
+  N = 3
   
   loop_start = time.time()
 

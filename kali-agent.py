@@ -1,93 +1,38 @@
-import zmq
-import re
-import time
-import threading
+import logging
+from agent import *
 
-from msgpack import packb
+"""
+  Kali Agent
 
-context = zmq.Context()
-socket = context.socket(zmq.REP)
+  This agent runs on every node of your distributed system.
+  Different clients post metrics through a local zmq pipe.
+  At a specific period of time the agent forwards the stored
+  metrics to a collector that computes data points and
+  publishes them into mongodb.
+"""
 
-socket.bind("ipc:///tmp/metrics.pipe")
+logging.basicConfig(filename='kali-agent.log',
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    level=logging.INFO,
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
-lock = threading.RLock()
-metrics = {}
-S_LEN = 5
+# local pipe name
+LOCAL_PIPE = "/tmp/local.pipe"
+# central collector address
+COLLECTOR_ADDR = "localhost:56468"
+# delay at which kali-agent sends collected metrics to
+# central collector
+COLLECT_TIME = 10
 
-# metric format is <bucket> : <int/float value> | <type>
-# <type> can be:
-# counter: c
-# timer: ms
-# geographical coordinates: g
-# sampled: @<float> were <float> means sampling radio
-def storeMetric(message):
-  global messages
-  message = re.split('(\w+)\:([-+]?\d*\.\d+|\d+)\|(.+)',message)
-
-  # after split exactly S_LEN pieces need to be present
-  if len(message) == S_LEN:
-    bucket = message[1]
-    value = message[2]
-    category = message[3]
-
-    # TODO Refactor verification to be included in regex
-    categories = [ "c", "ms", "g" ]
-    if category not in categories:
-      return
-
-    bucket = bucket + ":" + category
-
-    try:
-      lock.acquire()
-
-      if bucket not in metrics:
-        metrics[bucket] = []
-      
-      metrics[bucket].append({ 'v' : float(value), 't': time.time() })
-    finally:
-      lock.release()
+agent = Agent(LOCAL_PIPE,COLLECTOR_ADDR,COLLECT_TIME)
 
 # basic server thread for reading and storing metrics from clients
 def server_thread():
-  global metrics
-
-  idx = 0
-  while True:
-    message = socket.recv()
-    storeMetric(message)
-    socket.send("RESP")
+  agent.start()
 
 # collector thread that sends data to the collector once every 10s
 def send_to_collector():
-  global metrics
-
-  while True:
-    # sleep for 10 seconds before sending metrics to
-    # collector
-    time.sleep(10)
-
-    # pack metrics
-    # this area needs locking because we're clearing
-    # the metrics dictionary.
-    lock.acquire()
-    if len(metrics.keys()) != 0:
-      print "Metrics found"
-      m = packb(metrics)
-      metrics.clear()
-    else:
-      print "No metrics"
-      m = None
-    lock.release()
-
-    if m != None:
-      print "Sending metrics"
-      # send them to collector
-      collector = context.socket(zmq.REQ)
-      collector.connect("tcp://localhost:56468")
-
-      collector.send(m)
-
-      collector.close()
+  agent.collect()
 
 # entry point
 def main():
