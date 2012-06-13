@@ -39,9 +39,7 @@ class Collector:
     logging.info('Listening for connections on %d ' % self.port)
 
     while True:
-      print "Here"
       message = self.socket.recv()
-      print "There!"
       logging.info('Payload received')
       try:
         self.q.put(message)
@@ -56,7 +54,6 @@ class Collector:
     """
     watchdog = Watchdog(self)
     watchdog.start()
-    
   
   def store(self):
     logging.info("Storage thread started")

@@ -13,7 +13,6 @@ def run():
   socket.connect("ipc:///tmp/local.pipe")
 
   N = 3
-  
   loop_start = time.time()
 
   bucket = ""
