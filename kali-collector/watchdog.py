@@ -2,107 +2,108 @@ import threading
 import os
 import sys
 import logging
-
 import time
 import math
 
-current_path = os.path.realpath(__file__)
-sys.path.append("/".join(current_path.split("/")[0:-2]))
+import heapq
 
 S_LEN = 30
 
+"""
+  Watchdog
+
+  The purpose of this module is to flush metric buffers
+  to the redis database. So it keeps a minheap of the
+  last time a metric has been flushed.
+"""
 class Watchdog():
 
   def __init__(self,collector):
     self.collector = collector
-    
-    self.rlock = threading.RLock()
-    self.nb_threads = 0
-    self.threads = []
 
-    self.watch = {}
+    # lock guaring the heap
+    self.h_lock = threading.RLock()
 
+    # internal heap to store the oldest timestamp of a
+    # flushed metric
+    self.heap = []
+
+  """
+    Start watch metrics and flush metrics threads
+  """
   def start(self):
-    idx = 0
     logging.info("Watchdog started")
-    while True:
-      if idx % 2 == 0:
-        self.watch_storage()
-      else:
-        self.watch_tickers()
 
-      idx = (idx + 1) % 2
-      time.sleep(5)
-
-  def watch_tickers(self):
     threads = []
+    t = threading.Thread(target=self.watch_metrics)
+    threads.append(t)
 
-    diff = self.nb_threads - len(self.threads)
-    idx = len(self.threads)
+    t = threading.Thread(target=self.flush_metrics)
+    threads.append(t)
+    
+    [t.start() for t in threads]
+    [t.join() for t in threads]
 
-    if diff > 0:
-      c_threads = []
-      for i in range(diff):
-        thread = threading.Thread(target=self.watch_metrics, args=(idx+i,))
-        self.threads.append(thread)
-        c_threads.append(thread)
+  """
+    The purpose is to flush the metrics from the in-memory
+    store to Redis.
 
-      [ t.start() for t in c_threads ]
-
-  def watch_metrics(self,*args):
-    first_run = 0
-
-    diff = 10 - (math.trunc(time.time()) % 10)
-
-    index = args[0]
-    print "Current index is %d " % index
-
+    It queries the min-heap for the minimum timestamp (the oldest
+    flush timestamp) of the metrics and then it flushes the metric
+    and updates the heap.
+  """
+  def flush_metrics(self):
+    sleep_time = 0
+    
     while True:
-      if first_run == 0:
-        time.sleep(diff)
-        first_run = 1
-      else:
-        time.sleep(10)
+      if sleep_time != 0:
+        time.sleep(sleep_time)
 
       try:
-        self.rlock.acquire()
-        watching = self.watch[index]
+        sleep_time = 0
+        self.h_lock.acquire()
+
+        if len(self.heap) > 0:
+          elem= self.heap[0]
+
+          # if since the last flush it has passed more than 11 seconds
+          # then consider element
+          if time.time() - elem[0] > 11:
+            # flush metric into DB
+            to_flush = heapq.heappop(self.heap)
+
+            print "Flushed value"
+            print to_flush
+
+            metric_name = to_flush[1]
+            metric = self.collector.storage[metric_name]
+            metric.last_flushed = time.time()
+
+            heapq.heappush(self.heap,(metric.last_flushed, metric_name))
+
+          else:
+            sleep_time = 11 + time.time() - elem[0]
+        else:
+          sleep_time = 5
       finally:
-        self.rlock.release()
-        
-      print "Watching"
-      print watching
+        self.h_lock.release()
 
-  def watch_storage(self):
-    w = {}
+  """
+    Watch metrics purpose is to update the heap with the latests
+    metric names collected by the service
+  """
+  def watch_metrics(self):
+    logging.info("Watchdog started")
 
-    try:
-      self.collector.rlock.acquire()
-      keys = self.collector.storage.keys()
-    finally:
-      self.collector.rlock.release()
+    while True:
+      metric_name = self.collector.nkeys.get()
 
-    logging.info("Managing %d metric" % len(keys))
-    nb_threads = ( len(keys) / S_LEN ) + 1
+      metric = self.collector.storage[metric_name]
+      metric.last_flushed = time.time()
 
-    if (len(keys) % 2) == 0:
-      nb_threads -= 1
-
-    logging.info("%d threads are opened for processing" % nb_threads)
-
-    nth_thread = 0
-    for key in keys:
-      if nth_thread not in w:
-        w[nth_thread] = []
-
-      w[nth_thread].append(key)
-      if len(w[nth_thread]) > S_LEN:
-        nth_thread += 1
-
-    self.nb_threads = nb_threads
-
-    try:
-      self.rlock.acquire()
-      self.watch = w
-    finally:
-      self.rlock.release()
+      try:
+        self.h_lock.acquire()
+        heapq.heappush(self.heap,(metric.last_flushed, metric_name))
+      finally:
+        self.h_lock.release()
+        self.collector.nkeys.task_done()

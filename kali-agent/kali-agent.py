@@ -24,23 +24,17 @@ COLLECTOR_ADDR = "localhost:56468"
 # central collector
 COLLECT_TIME = 10
 
-agent = Agent(LOCAL_PIPE,COLLECTOR_ADDR,COLLECT_TIME)
-
-# basic server thread for reading and storing metrics from clients
-def server_thread():
-  agent.start()
-
-# collector thread that sends data to the collector once every 10s
-def send_to_collector():
-  agent.collect()
-
-# entry point
+# agent start
 def main():
+  agent = Agent(LOCAL_PIPE,COLLECTOR_ADDR,COLLECT_TIME)
+
   threads = []
-  t = threading.Thread(target=server_thread)
+  # basic server thread for reading and storing metrics from clients
+  t = threading.Thread(target=agent.start)
   threads.append(t)
 
-  t = threading.Thread(target=send_to_collector)
+  # collector thread that sends data to the collector once every 10s
+  t = threading.Thread(target=agent.collect)
   threads.append(t)
 
   [t.start() for t in threads]
