@@ -7,8 +7,6 @@ import math
 
 import heapq
 
-S_LEN = 30
-
 """
   Watchdog
 
@@ -53,6 +51,8 @@ class Watchdog():
     and updates the heap.
   """
   def flush_metrics(self):
+    # sleep time is used to store the amount of sleep outside
+    # the lock
     sleep_time = 0
     
     while True:
@@ -61,31 +61,38 @@ class Watchdog():
 
       try:
         sleep_time = 0
+        # acq lock because we're modifying the heap
         self.h_lock.acquire()
 
+        # if there is an element in the heap than try to process it
         if len(self.heap) > 0:
-          elem= self.heap[0]
+          elem = self.heap[0]
 
           # if since the last flush it has passed more than 11 seconds
           # then consider element
           if time.time() - elem[0] > 11:
-            # flush metric into DB
+            # remove element from the heap
             to_flush = heapq.heappop(self.heap)
 
             print "Flushed value"
             print to_flush
 
+            # update last flushed timestamp
             metric_name = to_flush[1]
             metric = self.collector.storage[metric_name]
             metric.last_flushed = time.time()
 
+            # push metric with new timestamp back into the heap
             heapq.heappush(self.heap,(metric.last_flushed, metric_name))
 
           else:
+            # sleep the exact amount of time needed before a metric expires
             sleep_time = 11 + time.time() - elem[0]
         else:
+          # sleep 5 maybe there are elements in the heap next time we look
           sleep_time = 5
       finally:
+        # whatever happens release the lock
         self.h_lock.release()
 
   """
@@ -96,14 +103,19 @@ class Watchdog():
     logging.info("Watchdog started")
 
     while True:
+      # blocking wait to get a new metric_name
       metric_name = self.collector.nkeys.get()
 
+      # get the metric
       metric = self.collector.storage[metric_name]
+      # set it's last flushed time to now
       metric.last_flushed = time.time()
 
       try:
         self.h_lock.acquire()
+        # push to heap new metric name is current last flushed timestamp
         heapq.heappush(self.heap,(metric.last_flushed, metric_name))
       finally:
+        # release the lock and mark task as done
         self.h_lock.release()
         self.collector.nkeys.task_done()
