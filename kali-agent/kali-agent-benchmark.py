@@ -25,7 +25,7 @@ def run():
 
   for x in range(N):
 
-    message = bucket + ":" + str(random.random()*1000) + "|ms"
+    message = "test_bucket_two" + ":" + str(random.random()*1000) + "|ms"
 
     socket.send(message)
     message = socket.recv()

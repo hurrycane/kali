@@ -95,8 +95,11 @@ class Publish():
         point -= 1
 
       logging.info("Fetching index %d" % point)
-      r = self.redis.zrange(metric_name,point,point,withscores=True)
+      r = self.redis.zrange(metric_name,int(point),int(point),withscores=True)
+      print r
+      print r[0]
+
       if len(r) > 0:
-        to_publish = r[0][0]
+        return r[0][0]
       else:
         return None
