@@ -49,7 +49,7 @@ class Collector:
       finally:
         self.socket.send("OK")
 
-  def ticker(self):
+  def publisher(self):
     """
       Watchdog thread. Manages thread that 
     """
@@ -58,6 +58,7 @@ class Collector:
 
   def store(self):
     logging.info("Storage thread started")
+
     while True:
       # blocking
       item = self.q.get()

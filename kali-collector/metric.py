@@ -1,4 +1,5 @@
 import threading
+import math
 
 """
 .. moduleauthor:: Bogdan Gaza <bc.gaza@gmail.com>
@@ -55,8 +56,8 @@ class Metric():
   def add(self, timestamp, value):
     try:
       self.rlock.acquire()
-
       for period in self.retention:
+        timestamp = math.trunc(timestamp)
         t = timestamp - (timestamp % period)
         if t not in self.points[period]:
           self.points[period][t] = []
@@ -64,6 +65,7 @@ class Metric():
         self.points[period][t].append({'t' : timestamp, 'v' : value})
     finally:
       self.rlock.release()
+
   """
     Add a list of values to the roundlist. Value list can be either a list with
     two elements: the first one is the timestamp the other one is the value OR

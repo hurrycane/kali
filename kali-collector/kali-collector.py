@@ -20,7 +20,7 @@ def main():
   t = threading.Thread(target=collector.store)
   threads.append(t)
 
-  t = threading.Thread(target=collector.ticker)
+  t = threading.Thread(target=collector.publisher)
   threads.append(t)
 
   [t.start() for t in threads]
