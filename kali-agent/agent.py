@@ -2,6 +2,7 @@ import threading
 import zmq
 import re
 import time
+import math
 
 from msgpack import packb
 
@@ -66,7 +67,7 @@ class Agent():
       self.lock.acquire()
       if bucket not in self.metrics:
         self.metrics[bucket] = []
-      self.metrics[bucket].append({ 'v' : float(value), 't': time.time() })
+      self.metrics[bucket].append({ 'v' : float(value), 't': math.trunc(time.time()) })
     finally:
       self.lock.release()
 

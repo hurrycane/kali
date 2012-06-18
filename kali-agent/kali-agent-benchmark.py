@@ -8,11 +8,15 @@ import threading
 context = zmq.Context()
 socket = context.socket(zmq.REQ)
 
+semaphore = threading.BoundedSemaphore(50)
+
 def run():
+  semaphore.acquire()
+
   socket = context.socket(zmq.REQ)
   socket.connect("ipc:///tmp/local.pipe")
 
-  N = 3
+  N = 1000
   loop_start = time.time()
 
   bucket = ""
@@ -32,9 +36,10 @@ def run():
   print x
   print float(N) / x
 
+  semaphore.release()
 
 threads = []
-for i in range(10):
+for i in range(1):
   t = threading.Thread(target=run)
   t.start()
 
