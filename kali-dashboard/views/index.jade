@@ -1,0 +1,60 @@
+
+
+div(class="container")
+  div(class="row")
+    div(class="span8") BBB
+    div(class="span4")
+      div(class="left-column")
+        button(class="btn btn-info btn-large",href="#",id="update") Update graph
+        form(class="form-inline")
+          label(class="control-label",for="input01") Metric name
+            div(class="controls")
+              input(type="text",class="input-xlarge",id="input01")
+          label(class="control-label",for="select01") Period
+            div(class="controls")
+              select(id="select01")
+                option 10s
+                option 1 min
+                option 1 h
+          br
+          label(class="control-label",for="date_start") Start date
+            div(class="controls")
+              input(class="picker date_start"
+                ,size="16",type="text",data-date="12-02-2012",value="12-02-2012",data-date-format="dd-mm-yyyy")
+          label(class="control-label",for="time_start") Start time      
+            div(class="controls")
+              input(class="picker time_start",
+                size="16",type="text",data-date="12-02-2012",value="12-02-2012",data-date-format="dd-mm-yyyy")
+          label(class="control-label",for="date_start") End date
+            div(class="controls")
+              input(class="picker date_end"
+                ,size="16",type="text",data-date="12-02-2012",value="12-02-2012",data-date-format="dd-mm-yyyy")
+          label(class="control-label",for="time_start") End time      
+            div(class="controls")
+              input(class="picker time_end",
+                size="16",type="text",data-date="12-02-2012",value="12-02-2012",data-date-format="dd-mm-yyyy")
+          button(class="btn btn-primary",href="#",id="add_btn") Add to graph
+          button(class="btn btn-info",href="#",id="add_btn") Now
+          button(class="btn",href="#",id="save_btn") Save dashboard
+      div(class="left-column-item")
+        .input-prepend
+            span.add-on
+                i.icon-envelope
+            input.metric_added.span2.disabled(type='text',disabled="disabled",value="Metric name #1")
+            span.add-on.rem
+              a(href="#")
+                i.icon-remove
+        .input-prepend
+            span.add-on
+                i.icon-envelope
+            input.metric_added.span2.disabled(type='text',disabled="disabled",value="Metric name #2")
+            span.add-on.rem
+              a(href="#")
+                i.icon-remove
+        .input-prepend
+            span.add-on
+              i.icon-envelope
+            input.metric_added.span2.disabled(type='text',disabled="disabled",value="Metric name #3")
+            span.add-on.rem
+              a(href="#")
+                i.icon-remove

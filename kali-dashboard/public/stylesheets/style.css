@@ -1,0 +1,63 @@
+div.left-column, div.left-column-item {
+  background-color:whiteSmoke;
+  border:1px solid #E1E1E8;
+  width:280px;
+  padding:10px;
+}
+
+div.left-column form{
+  margin-bottom:0px;
+}
+
+div.left-column-item{
+  margin-top:3px;
+}
+
+select#select01{
+  width:80px;
+}
+
+.picker{
+  width:110px;
+  margin-right:15px;
+}
+
+#update{
+  width:280px;
+  margin-bottom:10px;
+}
+
+#add_btn, #save_btn{
+  margin-top:5px;
+  margin-right:5px;
+}
+
+.metric_color{
+  width:14px;
+  background:blue;
+}
+
+.icon-envelope{
+  background:none;
+  background-color:#4682B4;
+}
+
+.input-prepend{
+  margin-bottom:9px;
+}
+
+.input-prepend input{
+  cursor:auto;
+}
+
+.input-prepend .rem{
+  display:none;
+}
+
+.input-prepend:hover .rem{
+  display: inline-block;
+}
+
+input.metric_added{
+  width:210px;
+}
