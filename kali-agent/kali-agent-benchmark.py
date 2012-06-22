@@ -16,7 +16,7 @@ def run():
   socket = context.socket(zmq.REQ)
   socket.connect("ipc:///tmp/local.pipe")
 
-  N = 1000
+  N = 50
   loop_start = time.time()
 
   bucket = ""
@@ -25,7 +25,7 @@ def run():
 
   for x in range(N):
 
-    message = "test_bucket_two" + ":" + str(random.random()*1000) + "|ms"
+    message = bucket + ":" + str(random.random()*1000) + "|ms"
 
     socket.send(message)
     message = socket.recv()
@@ -39,8 +39,10 @@ def run():
   semaphore.release()
 
 threads = []
-for i in range(1):
-  t = threading.Thread(target=run)
-  t.start()
+while True:
+  for i in range(1):
+    t = threading.Thread(target=run)
+    t.start()
+  time.sleep(2)
 
 [t.join() for t in threads]

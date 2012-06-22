@@ -84,6 +84,8 @@ class Publish():
 
     self.metrics.insert(metric)
 
+    self.redis.delete(redis_metric_name)
+
   def compute_percentiles(self,metric_name,index):
     nb_points = self.redis.zcard(metric_name)
 
