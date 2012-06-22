@@ -27,7 +27,7 @@ select#select01{
   margin-bottom:10px;
 }
 
-#add_btn, #save_btn{
+#save_btn, #now_btn{
   margin-top:5px;
   margin-right:5px;
 }
@@ -39,7 +39,7 @@ select#select01{
 
 .icon-envelope{
   background:none;
-  background-color:#4682B4;
+
 }
 
 .input-prepend{
@@ -60,4 +60,14 @@ select#select01{
 
 input.metric_added{
   width:210px;
+}
+
+#add_button_group{
+  float:left;
+  margin-top:5px;
+  margin-right:10px;
+}
+
+#now_btn{
+  margin-right:10px;
 }
