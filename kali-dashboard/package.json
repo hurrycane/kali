@@ -5,5 +5,8 @@
   , "dependencies": {
       "express": "2.5.10"
     , "jade": ">= 0.0.1"
+    , "mongoose": "2.7.0"
+    , "moment" : "1.6.2"
+    , "socket.io" : "0.9.6"
   }
 }
