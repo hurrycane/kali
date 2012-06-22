@@ -1,8 +1,8 @@
-
-
+script(id="metricTemplate",type="text/x-jquery-tmpl") <div class="input-prepend"><span class="add-on"><i class="icon-envelope"></i></span><input type="text" disabled="disabled" value="${name}" class="metric_added span2 disabled"/><span class="add-on rem"><a href="#"><i class="icon-remove"></i></a></span></div>
 div(class="container")
   div(class="row")
-    div(class="span8") BBB
+    div(class="span8")
+      | &nbsp;
     div(class="span4")
       div(class="left-column")
         button(class="btn btn-info btn-large",href="#",id="update") Update graph
@@ -25,36 +25,23 @@ div(class="container")
             div(class="controls")
               input(class="picker time_start",
                 size="16",type="text",data-date="12-02-2012",value="12-02-2012",data-date-format="dd-mm-yyyy")
-          label(class="control-label",for="date_start") End date
+          label(class="control-label",for="date_end") End date
             div(class="controls")
               input(class="picker date_end"
                 ,size="16",type="text",data-date="12-02-2012",value="12-02-2012",data-date-format="dd-mm-yyyy")
-          label(class="control-label",for="time_start") End time      
+          label(class="control-label",for="time_end") End time      
             div(class="controls")
               input(class="picker time_end",
                 size="16",type="text",data-date="12-02-2012",value="12-02-2012",data-date-format="dd-mm-yyyy")
-          button(class="btn btn-primary",href="#",id="add_btn") Add to graph
-          button(class="btn btn-info",href="#",id="add_btn") Now
-          button(class="btn",href="#",id="save_btn") Save dashboard
-      div(class="left-column-item")
-        .input-prepend
-            span.add-on
-                i.icon-envelope
-            input.metric_added.span2.disabled(type='text',disabled="disabled",value="Metric name #1")
-            span.add-on.rem
-              a(href="#")
-                i.icon-remove
-        .input-prepend
-            span.add-on
-                i.icon-envelope
-            input.metric_added.span2.disabled(type='text',disabled="disabled",value="Metric name #2")
-            span.add-on.rem
-              a(href="#")
-                i.icon-remove
-        .input-prepend
-            span.add-on
-              i.icon-envelope
-            input.metric_added.span2.disabled(type='text',disabled="disabled",value="Metric name #3")
-            span.add-on.rem
-              a(href="#")
-                i.icon-remove
+          .btn-group#add_button_group
+              a.btn.btn-primary#add_btn(href='#')
+                  | Add to graph
+                a.btn.btn-primary.dropdown-toggle(data-toggle='dropdown', href='#')
+                  span.caret
+                ul.dropdown-menu
+                  li
+                    a(href='#')
+                      | Add to new graph
+          button(class="btn btn-info",href="#",id="now_btn") Now
+          button(class="btn",href="#",id="save_btn") Save dash
+.line(style='position: absolute; top: 0px; bottom: 0px; width: 1px; pointer-events: none; left: 464px; display: none;')

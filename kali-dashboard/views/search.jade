@@ -5,26 +5,15 @@ div.container
         th Metric name
         th Period
         th Points
+        th Timestamp
       tbody
+        - title.forEach(function(item){
         tr
-          td Testing metric
+          td= item.name
           td
             ul
               li
-                a(href="#") 10s
-              li
-                a(href="#") 1min
-              li
-                a(href="#") 1h
-          td 123123
-        tr
-          td Testing metric
-          td
-            ul
-              li
-                a(href="#") 10s
-              li
-                a(href="#") 1min
-              li
-                a(href="#") 1h
-          td 123123
+                a(href="#")= item.period
+          td= item.stats.n
+          td= moment(item.timestamp).format()
+        - })
