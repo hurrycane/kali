@@ -229,13 +229,44 @@ $(document).ready(function(){
     show.count++;
 
     metric_entry.appendTo(container);
-    
-    drawCharts(current_color);
+    var period = $("#select01").val();
+    Graph.draw(current_color,metric_name,period);
   });
   
   $("#update").bind("click",function(event){
     event.preventDefault();
   });
+  
+  $(".span8").bind("mousemove",function(e){
+     var parentOffset = $(this).offset();
+     //or $(this).offset(); if you really just want the current element's offset
+     var relX = e.pageX - parentOffset.left;
+     var relY = e.pageY - parentOffset.top;
+
+     // console.log(Math.round(relX));
+     $(".line").css("left",e.pageX + "px");
+     $(".line").css("height",$("#wrapper").height() + 50 + "px");
+     
+     var current_data = Graph.data();
+     $.each($(".chart_value"),function(index,value){
+       var offset = Math.round(relX);
+       if(offset < 624){
+         $(value).text(current_data[index+1][offset].value);
+       }
+     });
+     
+     $(".chart_value").css("left",-80 + relX + "px");
+  });
+  
+  $(".span8").bind("mouseover",function(e){
+    $(".line").show();
+    $(".chart_value").show();
+  });
+  
+  $(".span8").bind("mouseout",function(e){
+    $(".line").hide();
+    $(".chart_value").hide();
+  })
 })
 
 

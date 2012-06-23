@@ -71,3 +71,30 @@ input.metric_added{
 #now_btn{
   margin-right:10px;
 }
+
+canvas{
+  z-index:0;
+}
+
+.chart_label{
+  position:relative;
+  left:5px;
+  top:-125px;
+  float:left;
+}
+
+.chart_current_value{
+  float:right;
+  position:relative;
+  right:5px;
+  top:-125px;
+  font-size:16px;
+}
+
+.chart_value{
+  display:none;
+  position:relative;
+  top:-88px;
+  float:left;
+  font-size:18px;
+}

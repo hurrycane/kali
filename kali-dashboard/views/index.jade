@@ -1,8 +1,9 @@
 script(id="metricTemplate",type="text/x-jquery-tmpl") <div class="input-prepend"><span class="add-on"><i class="icon-envelope"></i></span><input type="text" disabled="disabled" value="${name}" class="metric_added span2 disabled"/><span class="add-on rem"><a href="#"><i class="icon-remove"></i></a></span></div>
-div(class="container")
+
+div(class="container",id="wrapper")
   div(class="row")
     div(class="span8")
-      | &nbsp;
+    .line(style='background:#999; position: absolute; top: 0px; bottom: 0px; width: 1px; pointer-events: none; left: 355px;display:none;')
     div(class="span4")
       div(class="left-column")
         button(class="btn btn-info btn-large",href="#",id="update") Update graph
