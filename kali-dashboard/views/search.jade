@@ -7,13 +7,17 @@ div.container
         th Points
         th Timestamp
       tbody
-        - title.forEach(function(item){
+        - items.forEach(function(item){
         tr
-          td= item.name
+          td= item
           td
             ul
               li
-                a(href="#")= item.period
-          td= item.stats.n
-          td= moment(item.timestamp).format()
+                a(href="#") 10
+              li
+                a(href="#") 60
+              li
+                a(href="#") 600
+          td 1000
+          td Now
         - })

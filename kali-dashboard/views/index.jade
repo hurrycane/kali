@@ -17,6 +17,15 @@ div(class="container",id="wrapper")
                 option 10s
                 option 1 min
                 option 1 h
+          label(class="control-label",for="select02") Metric type
+            div(class="controls")
+              select(id="select02")
+                option n
+                option avg
+                option min
+                option max
+                option p50
+                option p90
           br
           label(class="control-label",for="date_start") Start date
             div(class="controls")
@@ -30,7 +39,7 @@ div(class="container",id="wrapper")
             div(class="controls")
               input(class="picker date_end"
                 ,size="16",type="text",data-date="12-02-2012",value="12-02-2012",data-date-format="dd-mm-yyyy")
-          label(class="control-label",for="time_end") End time      
+          label(class="control-label",for="time_end") End time
             div(class="controls")
               input(class="picker time_end",
                 size="16",type="text",data-date="12-02-2012",value="12-02-2012",data-date-format="dd-mm-yyyy")

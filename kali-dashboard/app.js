@@ -37,6 +37,8 @@ app.get('/metrics/names', routes.all);
 app.get('/dashboard/:id', routes.show);
 app.get('/dashboard/save', routes.save);
 
+app.get('/metrics', routes.metrics);
+
 app.listen(3000);
 
 var sio = io.listen(app);

@@ -7,9 +7,12 @@ exports.index = function(req, res){
 };
 
 exports.search = function(req, res){
-  var nav =  {'home' : '', 'quick' : '', 'dashboard' : ''}
-  metrics.find({"name" : req.query['q']},function (err, docs) {
-    res.render('search', { title: docs, moment: moment,  nav : nav})
+  var nav =  {'home' : '', 'quick' : '', 'dashboard' : ''};
+  
+  metrics
+  .where('name',req.query['q'])
+  .distinct('name',function(e,docs){
+    res.render('search', { items: docs, moment: moment,  nav : nav})
   });
 }; 
 
@@ -31,4 +34,32 @@ exports.save = function(req, res){
 exports.show = function(req, res){
   var nav =  {'home' : '', 'quick' : '', 'dashboard' : 'active'}
   res.render('index', { title: 'Express',  nav : nav})
+};
+
+exports.metrics = function(req, res){
+  var mapping = { '10s' : 60, '1 min':600, '1 hour' : 3600 }
+
+  var metric_name = req.query['name']
+  var period = req.query['period']
+  var metric_type = req.query['metric_type']
+  var start = parseInt(req.query['s'])
+  var end = parseInt(req.query['e'])
+
+  metrics
+  .where('name',metric_name)
+  .where('period',mapping[period])
+  .where('timestamp').gte(start).lte(end)
+  .exec(function(e,d){
+
+    metrics
+    .where('name',metric_name)
+    .where('period',mapping[period])
+    .where('timestamp').gte(start).lte(end)
+    .sort('stats.' + metric_type,-1)
+    .limit(1)
+    .exec(function(error,docs){
+      res.json({data : d, max : docs});
+    })
+
+  });
 };
