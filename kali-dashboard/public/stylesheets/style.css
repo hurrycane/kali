@@ -15,6 +15,11 @@ div.left-column-item{
 
 select#select01{
   width:80px;
+  margin-right:55px;
+}
+
+select#select02{
+  width:80px;
 }
 
 .picker{
@@ -97,4 +102,8 @@ canvas{
   top:-88px;
   float:left;
   font-size:18px;
+}
+
+.span8{
+  height:1px;
 }
