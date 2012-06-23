@@ -2,7 +2,7 @@ var Labels = {
   '10s' : function(start_time,end_time) {
     var smoment = moment(start_time);
     var w = 624;
-    
+
     var period = 15;
 
     var subs_start = smoment.format('m') % period;
@@ -25,12 +25,12 @@ var Labels = {
   '1 min' : function(start_time,end_time) {
     var smoment = moment(start_time);
     var w = 624;
-    
+
     var period = 15;
-    
+
     var remaining_mins = smoment.format('m') % period;
     var nb_mins = parseInt(smoment.format('m') / period);
-    
+
     var mins_sub = 6 - nb_mins;
     var firstLabel = smoment.subtract('minutes',mins_sub * period + remaining_mins);
 
@@ -50,9 +50,9 @@ var Labels = {
   '1 h' : function(start_time,end_time) {
     var smoment = moment(start_time);
     var w = 624;
-    
+
     var period = 15;
-    
+
     var remaining_h = smoment.format('h');
     
     var firstLabel = smoment.subtract('hours',remaining_h);
@@ -76,23 +76,52 @@ var Labels = {
 var data = null;
 
 var Graph = (function(){
-  
+
   var w = 1, h = 100;
   var v = 70;
-  
+
   var width = 624;
   var padding = 25;
   var x = d3.scale.linear().domain([0, 1]).range([0, w]);
   var y = d3.scale.linear().domain([0, 100]).rangeRound([0, h]);
-  
+
   var data = [];
   var graphNb = 0;
-  
+
   function lastValue(set){
-    return set[set.length - 1].value;
+    return set[set.length - 1].actual_value;
   }
-  
-  function drawGraph(color,label,period){
+
+  function prepareData(input,metric_type){
+    if(input["data"].length < width){
+      var zeros = width - input["data"].length;
+    }
+
+    var dataset = [];
+    for(var i=0;i<zeros;i++){
+      dataset.push({value : 0});
+    }
+
+    if(zeros == 624) return dataset;
+
+    var highest = input['max'][0]['stats'][metric_type];
+
+    $.each(input["data"],function(index,value){
+
+      var current_value = value['stats'][metric_type] * 1;
+      var published_value = value['stats'][metric_type]  * 100 / highest;
+      if(current_value == null || published_value == null){
+        dataset.push({value : 0, actual_value : 0});
+      }else{
+        dataset.push({value : published_value.toFixed(2), actual_value : current_value.toFixed(2), t : value.timestamp});
+      }
+
+    });
+
+    return dataset;
+  }
+
+  function drawGraph(color,label,period,input,metric_type){
     graphNb +=1;
     var position = graphNb;
     
@@ -104,7 +133,7 @@ var Graph = (function(){
       };
     };
 
-    data[position] = d3.range(624).map(next);
+    data[position] = prepareData(input,metric_type);
 
     var chartContainer = d3.select("div.span8")
       .append("div")
@@ -124,18 +153,10 @@ var Graph = (function(){
 
     chartContainer.append("span").attr("class","chart_current_value").text(lastValue(data[position]));
     chartContainer.append("span").attr("class","chart_value").text(lastValue(data[position]));
-    
-    setInterval(function() {
-      data[position].shift();
-      data[position].push(next());
-      redraw();
 
-      d3.select("span.chart_current_value").text(lastValue(data[position]));
-    }, 10000);
-    
     function redraw(){
-      var time = new Date().getTime();
-      var l = f_label(time,time);
+      var last_timestamp = data[position][data[position].length - 1].t;
+      var l = f_label(last_timestamp,last_timestamp);
 
       var startIndex = parseInt(l[0]);
       var labels = l[1];
