@@ -37,7 +37,7 @@ exports.show = function(req, res){
 };
 
 exports.metrics = function(req, res){
-  var mapping = { '10s' : 60, '1 min':600, '1 hour' : 3600 }
+  var mapping = { '10s' : 10, '1 min':60, '10 mins' : 600 }
 
   var metric_name = req.query['name']
   var period = req.query['period']
@@ -49,6 +49,7 @@ exports.metrics = function(req, res){
   .where('name',metric_name)
   .where('period',mapping[period])
   .where('timestamp').gte(start).lte(end)
+  .sort('timestamp',1)
   .exec(function(e,d){
 
     metrics

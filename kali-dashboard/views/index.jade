@@ -3,6 +3,7 @@ script(id="metricTemplate",type="text/x-jquery-tmpl") <div class="input-prepend"
 div(class="container",id="wrapper")
   div(class="row")
     div(class="span8")
+      div(style="height:1px;")
     .line(style='background:#999; position: absolute; top: 0px; bottom: 0px; width: 1px; pointer-events: none; left: 355px;display:none;')
     div(class="span4")
       div(class="left-column")
@@ -16,7 +17,7 @@ div(class="container",id="wrapper")
               select(id="select01")
                 option 10s
                 option 1 min
-                option 1 h
+                option 10 mins
           label(class="control-label",for="select02") Metric type
             div(class="controls")
               select(id="select02")
