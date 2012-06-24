@@ -42,11 +42,12 @@ var Kali = {
        $(".line").css("left",e.pageX + "px");
        $(".line").css("height",$("#wrapper").height() + 50 + "px");
 
-       var current_data = Graph.data();
        $.each($(".chart_value"),function(index,value){
          var offset = Math.round(relX);
          if(offset < 624){
-           $(value).text(current_data[index+1][offset-1].actual_value);
+           var position = parseInt($(value).attr("ref"));
+           var d = Graph.data[position];
+           $(value).text(d[offset-1].actual_value);
          }
        });
 
@@ -137,20 +138,8 @@ Kali.AddGraph = {
     show.count++;
 
     metric_entry.appendTo(container);
-  }
-}
-
-$(document).ready(function(){
-  
-  Kali.init_datepickers();
-  Kali.init_typeahead();
-  Kali.init_now();
-
-  $("#add_btn").bind("click",function(event){
-    event.preventDefault();
-    // validate adding a new graph
-    if(!Kali.AddGraph.validate()) return;
-    
+  },
+  getTimeSeris: function(event){
     var period = $("#select01").val();
     var metric_type = $("#select02").val();
     
@@ -162,18 +151,71 @@ $(document).ready(function(){
         metric_type : metric_type,
         s : Kali.AddGraph.date_start.unix(),
         e : Kali.AddGraph.date_end.unix(),
-        is_now : Kali.AddGraph.is_now
       },
       success: function(response){
         if(response.data.length == 0) {
           alert("Data points not found for that metric/interval");
         }else{
           Kali.AddGraph.addMetricBox();
-          Graph.draw(Kali.AddGraph.current_color,Kali.AddGraph.metric_name,period,response,metric_type);
+          var position = Graph.draw(Kali.AddGraph.current_color,
+                                    Kali.AddGraph.metric_name,
+                                    period,
+                                    response,
+                                    metric_type);
+
+          if(Kali.AddGraph.is_now){
+            Kali.AddGraph.getSocket(response,metric_type,position,Kali.AddGraph.date_start.unix());
+          }
         }
       }
     });
-  });
+  },
+  getSocket : function(response,metric_type,position,date_start){
+    var t = null;
+    if(response.data.length > 0){
+      t = response.data[response.data.length -1].timestamp;
+    }else{
+      return ;
+    }
+    
+    var period = $("#select01").val();
+    var mapping = {
+      "10s" : "10",
+      "1 min" : "60",
+      "10 mins" : "600"
+    };
+    
+    var metric_name = "" + Kali.AddGraph.metric_name;
+    var socket = io.connect('http://localhost:3000');
+    socket.emit('subscribe', { name : metric_name, t : t, metric_type : metric_type, p : period, start : date_start});
+    socket.on('metrics', function (data) {
+      var state = Graph.state[position];
+      
+      state.input["max"] = data["max"];
+      $.each(data.data,function(index,value){
+        state.input["data"].push(value);
+      })
+      
+      Graph.data[position] = Graph.prepareData(state.input,metric_type,mapping[period],position);
+      Graph.redraw(state);
+      $(".chart_current_value[ref=1]").text(Graph.lastValue(Graph.data[position]));
+    });
+  },
+  handler : function(event){
+    event.preventDefault();
+    // validate adding a new graph
+    if(!Kali.AddGraph.validate()) return;
+    Kali.AddGraph.getTimeSeris();
+  }
+}
+
+$(document).ready(function(){
+  
+  Kali.init_datepickers();
+  Kali.init_typeahead();
+  Kali.init_now();
+
+  $("#add_btn").bind("click",Kali.AddGraph.handler);
   
   Kali.init_line();
 })
