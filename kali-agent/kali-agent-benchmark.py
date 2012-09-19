@@ -10,18 +10,21 @@ socket = context.socket(zmq.REQ)
 
 semaphore = threading.BoundedSemaphore(50)
 
+buckets = ["testing","ceva","chiuveta","lalele","franzele"]
+
 def run():
   semaphore.acquire()
 
   socket = context.socket(zmq.REQ)
   socket.connect("ipc:///tmp/local.pipe")
 
-  N = 50
+  N = 100
   loop_start = time.time()
 
-  bucket = ""
-  for i in range(4):
-    bucket += random.choice(string.letters)
+  #bucket = ""
+  #for i in range(4):
+  #  bucket += random.choice(string.letters)
+  bucket = buckets[random.randint(0,4)]
 
   for x in range(N):
 
@@ -38,11 +41,11 @@ def run():
 
   semaphore.release()
 
-threads = []
 while True:
-  for i in range(1):
+  threads = []
+  for i in range(10):
     t = threading.Thread(target=run)
+    threads.append(t)
     t.start()
-  time.sleep(2)
-
-[t.join() for t in threads]
+  [t.join() for t in threads]
+  time.sleep(1)

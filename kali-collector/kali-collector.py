@@ -8,7 +8,7 @@ logging.basicConfig(filename='kali-sink.log',
                     datefmt='%Y-%m-%d %H:%M:%S')
 
 PORT = 56468
-RETENTION = [60,600,3600]
+RETENTION = [10,60,600]
 
 collector = Collector(PORT,RETENTION)
 

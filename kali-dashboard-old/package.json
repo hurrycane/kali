@@ -1,0 +1,16 @@
+{
+  "name": "kali-dashboard",
+  "version": "0.0.1",
+  "description": "Metric visualisation dashboard for kali.",
+  "keywords": ["time series", "visualisation"],
+  "homepage": "https://github.com/hurrycane/kali",
+  "author": {"name": "Bogdan Gaza", "url": "http://students.info.uaic.ro/~bogdan.gaza"},
+  "repository": {"type": "git", "url": "https://github.com/hurrycane/kali.git"},
+  "main": "./lib/kali-dashboard",
+  "dependencies": {
+    "mongodb": "1.0.1",
+    "node-static": "0.5.9",
+    "websocket": "1.0.3",
+    "websocket-server": "1.4.04"
+  }
+}
